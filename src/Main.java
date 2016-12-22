@@ -21,18 +21,18 @@ public class Main {
 
 		@Override
 		public void run() {
-			try {
-				frame = new Inicio();
-				frame.setVisible(true);
-				Thread.sleep(3000);
-				frame.setVisible(false);
+		//	try {
+//				frame = new Inicio();
+//				frame.setVisible(true);
+//				Thread.sleep(1000);
+//				frame.setVisible(false);
 				frame2 = new AreaDeDesenvolvimento();
 				frame2.setVisible(true);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			
 			
 		}
 		
