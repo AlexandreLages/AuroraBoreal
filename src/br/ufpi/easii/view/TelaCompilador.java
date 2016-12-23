@@ -144,11 +144,12 @@ public class TelaCompilador extends JFrame {
 				JViewport viewport = (JViewport) scrollPane.getComponent(0);
 				JTextArea areaPrograma = (JTextArea) viewport.getComponent(0);
 				
+				arquivos.get(indiceSelecionado).setFonte(areaPrograma.getText());
+				
 				//caso o arquivo nao tenha sido salvo antes da compilacao
 				if(arquivos.get(indiceSelecionado).getPath()==null){
 					if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
 						
-						arquivos.get(indiceSelecionado).setFonte(areaPrograma.getText());
 						arquivos.get(indiceSelecionado).setPath(chooser.getSelectedFile().getAbsolutePath()+".txt");
 						try {
 							FileWriter arq = new FileWriter(arquivos.get(indiceSelecionado).getPath());
@@ -161,23 +162,48 @@ public class TelaCompilador extends JFrame {
 								e1.printStackTrace();
 							}
 						//apos salvo o arquivo deve ser enviado para o metodo que realiza a compilacao
-						String resposta =  Compilador.compilar(arquivos.get(indiceSelecionado).getPath());
+						String resposta;
+						try {
+							resposta = Compilador.compilar(arquivos.get(indiceSelecionado).getPath());
+							JPanel pane2 = (JPanel) pane.getComponent(0);
+							JScrollPane scrollPane2 =  (JScrollPane) pane2.getComponent(0);
+							JViewport viewport2 = (JViewport) scrollPane2.getComponent(0);
+							JTextArea areaCompilacao = (JTextArea) viewport2.getComponent(0);
+							areaCompilacao.setText(resposta);
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 						 
+						 
+					}
+				}else{
+					//envio o path desse arquivo
+					try {
+						
+						FileWriter arq = new FileWriter(arquivos.get(indiceSelecionado).getPath());
+						PrintWriter gravarArq = new PrintWriter(arq);
+						gravarArq.printf(arquivos.get(indiceSelecionado).getFonte());
+						
+							arq.close();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					String resposta;
+					try {
+						resposta = Compilador.compilar(arquivos.get(indiceSelecionado).getPath());
 						 JPanel pane2 = (JPanel) pane.getComponent(0);
 							JScrollPane scrollPane2 =  (JScrollPane) pane2.getComponent(0);
 							JViewport viewport2 = (JViewport) scrollPane2.getComponent(0);
 							JTextArea areaCompilacao = (JTextArea) viewport2.getComponent(0);
 							areaCompilacao.setText(resposta);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
 					}
-				}else{
-					//envio o path desse arquivo
-					String resposta =  Compilador.compilar(arquivos.get(indiceSelecionado).getPath());
 					 
-					 JPanel pane2 = (JPanel) pane.getComponent(0);
-						JScrollPane scrollPane2 =  (JScrollPane) pane2.getComponent(0);
-						JViewport viewport2 = (JViewport) scrollPane2.getComponent(0);
-						JTextArea areaCompilacao = (JTextArea) viewport2.getComponent(0);
-						areaCompilacao.setText(resposta);
+					
 				}
 				
 				
@@ -192,7 +218,7 @@ public class TelaCompilador extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				if(arquivos.get(indiceSelecionado).getPath()==null){
 				JFileChooser chooser = new JFileChooser();
-
+				
 				if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
 					JPanel pane = (JPanel) tabbedPane.getComponent(indiceSelecionado);
 					JScrollPane scrollPane =  (JScrollPane) pane.getComponent(1);
@@ -216,6 +242,14 @@ public class TelaCompilador extends JFrame {
 				//quando clica em salvar e o arquivo ja possui um path, ele e salvo nesse lugar
 			}else{
 				try {
+					
+					JPanel pane = (JPanel) tabbedPane.getComponent(indiceSelecionado);
+					JScrollPane scrollPane =  (JScrollPane) pane.getComponent(1);
+					JViewport viewport = (JViewport) scrollPane.getComponent(0);
+					JTextArea areaPrograma = (JTextArea) viewport.getComponent(0);
+					
+					arquivos.get(indiceSelecionado).setFonte(areaPrograma.getText());
+					
 					FileWriter arq = new FileWriter(arquivos.get(indiceSelecionado).getPath());
 					PrintWriter gravarArq = new PrintWriter(arq);
 					gravarArq.printf(arquivos.get(indiceSelecionado).getFonte());
