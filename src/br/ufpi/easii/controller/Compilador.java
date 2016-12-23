@@ -1,6 +1,7 @@
 package br.ufpi.easii.controller;
 
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -38,8 +39,10 @@ public class Compilador {
 	        PortugolParser parser = new PortugolParser(tokens);
 	        ParseTree tree = parser.programa();
 	        
+	        FileWriter codigoDeMaquina = new FileWriter(path + ".j");
+	        
 	        ParseTreeWalker walker = new ParseTreeWalker();
-	        AcoesSemanticas acoes = new AcoesSemanticas(parser);
+	        AcoesSemanticas acoes = new AcoesSemanticas(parser, codigoDeMaquina);
 	        walker.walk(acoes, tree);
 	        
 	        Map<String, Simbolo> simbolos = acoes.parser.tabelaDeSimbolos;
@@ -57,6 +60,7 @@ public class Compilador {
 	        for(String aux:erros){
 	        	console = console + aux+" \n";
 	        }
+	        
 	        
 		return console;
 	}

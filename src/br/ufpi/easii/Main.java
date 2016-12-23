@@ -5,14 +5,12 @@ import br.ufpi.easii.view.TelaCompilador;
 import br.ufpi.easii.view.TelaInicializacao;
 
 public class Main {
-	
 	static TelaInicializacao frame;
 	static TelaCompilador frame2;
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					
 					new Thread(thread1).start();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -22,7 +20,6 @@ public class Main {
 	}
 	
 	private static Runnable thread1 = new Runnable() {
-
 		@Override
 		public void run() {
 			try {
@@ -36,10 +33,6 @@ public class Main {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			
-		}
-		
-		
+		}	
 	};
 }

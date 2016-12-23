@@ -1,5 +1,8 @@
 package semantica;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,11 +53,15 @@ public class AcoesSemanticas extends PortugolBaseListener{
 	public PortugolParser parser;
 	public List<String> mensagensDeErro = new ArrayList<String>();
 	public List<String> mensagensDeSaida = new ArrayList<String>();
+	PrintWriter salvar;
+	FileWriter codigoDeMaquina;
 	
-	public AcoesSemanticas(PortugolParser parser){
+	public AcoesSemanticas(PortugolParser parser, FileWriter codigoDeMaquina){
 		this.parser = parser;
+		this.codigoDeMaquina = codigoDeMaquina;
+		salvar = new PrintWriter(codigoDeMaquina);
 	}
-	
+
 	@Override
 	public void enterDecParams(DecParamsContext ctx) {
 		// TODO Auto-generated method stub
@@ -105,13 +112,19 @@ public class AcoesSemanticas extends PortugolBaseListener{
 
 	@Override
 	public void enterPrograma(ProgramaContext ctx) {
-		super.enterPrograma(ctx);
 	}
 
 	@Override
 	public void exitPrograma(ProgramaContext ctx) {
 		// TODO Auto-generated method stub
 		super.exitPrograma(ctx);
+		salvar.printf(".end method");
+		try {
+			codigoDeMaquina.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -289,19 +302,21 @@ public class AcoesSemanticas extends PortugolBaseListener{
 		for(int i = 0; i < ctx.listaIDs().ID().size(); i++){
 			if(!parser.tabelaDeSimbolos.containsKey(ctx.listaIDs().ID(i).getText())){
 				if(ctx.tipo().tip == 1) {
-					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "0"));
-					System.out.println("Variavel declarada com valor default 0");
+					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "0", parser.tabelaDeSimbolos.size()));
+					salvar.printf("\t\tildc " + 0 + "\n");
+					salvar.printf("\t\tistore " + parser.tabelaDeSimbolos.size() + "\n");
 				}
 				if(ctx.tipo().tip == 2) {
-					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "0.0"));
-					System.out.println("Variavel declarada com valor default 0.0");
+					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "0.0", parser.tabelaDeSimbolos.size()));
+					salvar.printf("\t\tfldc " + 0.0 + "\n");
+					salvar.printf("\t\tfstore " + parser.tabelaDeSimbolos.size() + "\n");
 				}
 				if(ctx.tipo().tip == 3) {
-					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, ""));
+					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "", parser.tabelaDeSimbolos.size()));
 					System.out.println("Variavel declarada com valor default string vazia");
 				}
 				if(ctx.tipo().tip == 4) {
-					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "FALSO"));
+					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "FALSO", parser.tabelaDeSimbolos.size()));
 					System.out.println("Variavel declarada com valor default true");
 				}
 			}
@@ -333,6 +348,11 @@ public class AcoesSemanticas extends PortugolBaseListener{
 	@Override
 	public void enterCabecalho(CabecalhoContext ctx) {
 		super.enterCabecalho(ctx);
+		salvar.printf(".class public " + ctx.ID().getText() + "\n");
+		salvar.printf(".super java/lang/Object\n");
+		salvar.printf(".method public static main([Ljava/lang/String;)V\n");
+		salvar.printf("\t.limit stack 100\n");
+		salvar.printf("\t.limit locals 2\n");
 	}
 
 	@Override
