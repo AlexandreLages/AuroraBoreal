@@ -1,14 +1,16 @@
+package br.ufpi.easii.view;
 import java.awt.Color;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -29,20 +31,29 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 
-public class AreaDeDesenvolvimento extends JFrame {
+import br.ufpi.easii.controller.Compilador;
+import br.ufpi.easii.model.Arquivo;
 
+public class TelaCompilador extends JFrame {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7599085553465052471L;
 	private JPanel contentPane;
 	private int qntArquivos;
 	private int indiceSelecionado;
+	private ArrayList<Arquivo> arquivos;
 
 	/**
 	 * Create the frame.
 	 */
-	public AreaDeDesenvolvimento() {
+	public TelaCompilador() {
 		
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		indiceSelecionado = 0;
 		qntArquivos = 1;
+		arquivos = new ArrayList<>();
 		setTitle("AuRoReaL");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -59,7 +70,10 @@ public class AreaDeDesenvolvimento extends JFrame {
 		MutableTreeNode rootNode2 = new DefaultMutableTreeNode("Main");
 		treeModel.insertNodeInto(rootNode2, rootNode, 0);
 
+		Arquivo ar = new Arquivo();
+		ar.setNome("Main");
 		
+		arquivos.add(ar);
 
 		contentPane.setLayout(null);
 		
@@ -124,17 +138,49 @@ public class AreaDeDesenvolvimento extends JFrame {
 		JButton btnComplilar = new JButton("Complilar");
 		btnComplilar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser();
 				JPanel pane = (JPanel) tabbedPane.getComponent(indiceSelecionado);
 				JScrollPane scrollPane =  (JScrollPane) pane.getComponent(1);
 				JViewport viewport = (JViewport) scrollPane.getComponent(0);
 				JTextArea areaPrograma = (JTextArea) viewport.getComponent(0);
 				
+				//caso o arquivo nao tenha sido salvo antes da compilacao
+				if(arquivos.get(indiceSelecionado).getPath()==null){
+					if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+						
+						arquivos.get(indiceSelecionado).setFonte(areaPrograma.getText());
+						arquivos.get(indiceSelecionado).setPath(chooser.getSelectedFile().getAbsolutePath()+".txt");
+						try {
+							FileWriter arq = new FileWriter(arquivos.get(indiceSelecionado).getPath());
+							PrintWriter gravarArq = new PrintWriter(arq);
+							gravarArq.printf(arquivos.get(indiceSelecionado).getFonte());
+							
+								arq.close();
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						//apos salvo o arquivo deve ser enviado para o metodo que realiza a compilacao
+						String resposta =  Compilador.compilar(arquivos.get(indiceSelecionado).getPath());
+						 
+						 JPanel pane2 = (JPanel) pane.getComponent(0);
+							JScrollPane scrollPane2 =  (JScrollPane) pane2.getComponent(0);
+							JViewport viewport2 = (JViewport) scrollPane2.getComponent(0);
+							JTextArea areaCompilacao = (JTextArea) viewport2.getComponent(0);
+							areaCompilacao.setText(resposta);
+					}
+				}else{
+					//envio o path desse arquivo
+					String resposta =  Compilador.compilar(arquivos.get(indiceSelecionado).getPath());
+					 
+					 JPanel pane2 = (JPanel) pane.getComponent(0);
+						JScrollPane scrollPane2 =  (JScrollPane) pane2.getComponent(0);
+						JViewport viewport2 = (JViewport) scrollPane2.getComponent(0);
+						JTextArea areaCompilacao = (JTextArea) viewport2.getComponent(0);
+						areaCompilacao.setText(resposta);
+				}
 				
-				JPanel pane2 = (JPanel) pane.getComponent(0);
-				JScrollPane scrollPane2 =  (JScrollPane) pane2.getComponent(0);
-				JViewport viewport2 = (JViewport) scrollPane2.getComponent(0);
-				JTextArea areaCompilacao = (JTextArea) viewport2.getComponent(0);
-				areaCompilacao.setText(areaPrograma.getText());
+				
 
 			}
 		});
@@ -142,6 +188,45 @@ public class AreaDeDesenvolvimento extends JFrame {
 		contentPane.add(btnComplilar);
 
 		JButton btnSalvar = new JButton("Salvar");
+		btnSalvar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(arquivos.get(indiceSelecionado).getPath()==null){
+				JFileChooser chooser = new JFileChooser();
+
+				if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+					JPanel pane = (JPanel) tabbedPane.getComponent(indiceSelecionado);
+					JScrollPane scrollPane =  (JScrollPane) pane.getComponent(1);
+					JViewport viewport = (JViewport) scrollPane.getComponent(0);
+					JTextArea areaPrograma = (JTextArea) viewport.getComponent(0);
+					
+					arquivos.get(indiceSelecionado).setFonte(areaPrograma.getText());
+					arquivos.get(indiceSelecionado).setPath(chooser.getSelectedFile().getAbsolutePath()+".txt");
+					 try {
+						FileWriter arq = new FileWriter(arquivos.get(indiceSelecionado).getPath());
+						PrintWriter gravarArq = new PrintWriter(arq);
+						gravarArq.printf(arquivos.get(indiceSelecionado).getFonte());
+						arq.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					 
+					
+				}
+				//quando clica em salvar e o arquivo ja possui um path, ele e salvo nesse lugar
+			}else{
+				try {
+					FileWriter arq = new FileWriter(arquivos.get(indiceSelecionado).getPath());
+					PrintWriter gravarArq = new PrintWriter(arq);
+					gravarArq.printf(arquivos.get(indiceSelecionado).getFonte());
+					arq.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			}
+		});
 		btnSalvar.setBounds(284, 11, 73, 23);
 		contentPane.add(btnSalvar);
 		
@@ -176,6 +261,9 @@ public class AreaDeDesenvolvimento extends JFrame {
 					
 				String nome = "";
 				nome = JOptionPane.showInputDialog("Nome do arquivo");
+				Arquivo arq = new Arquivo();
+				arq.setNome(nome);
+				arquivos.add(arq);
 				MutableTreeNode rootNodeAux = new DefaultMutableTreeNode(nome);
 				treeModel.insertNodeInto(rootNodeAux, rootNode, qntArquivos);
 				
@@ -215,10 +303,6 @@ public class AreaDeDesenvolvimento extends JFrame {
 		});
 		btnNovoArquivo.setBounds(10, 10, 111, 23);
 		contentPane.add(btnNovoArquivo);
-
-		JButton btnSair = new JButton("Sair");
-		btnSair.setBounds(461, 10, 73, 23);
-		contentPane.add(btnSair);
 		
 		JButton btnCarregarArquivo = new JButton("Carregar Arquivo");
 		btnCarregarArquivo.addActionListener(new ActionListener() {
@@ -239,9 +323,16 @@ public class AreaDeDesenvolvimento extends JFrame {
 					    	 texto = texto  + linha +"\n";
 					        linha = lerArq.readLine(); // lê da segunda até a última linha
 					      }
-					 
-					      String nome = chooser.getSelectedFile().getAbsolutePath();
-							MutableTreeNode rootNodeAux = new DefaultMutableTreeNode(nome);
+					      	
+					      	
+					      	String nome = chooser.getSelectedFile().getAbsolutePath();
+					      	//apos carregar um arquivo cria o objeto e adiciona na lista
+					      	Arquivo arqui = new Arquivo();
+					      	arqui.setNome(nome);
+					      	arqui.setFonte(texto);
+					      	arqui.setPath(nome);
+							arquivos.add(arqui);
+					      	MutableTreeNode rootNodeAux = new DefaultMutableTreeNode(nome);
 							treeModel.insertNodeInto(rootNodeAux, rootNode, qntArquivos);
 							
 							JPanel panelPrograma = new JPanel();
