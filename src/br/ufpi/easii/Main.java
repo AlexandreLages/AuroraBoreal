@@ -25,12 +25,10 @@ public class Main {
 			try {
 				frame = new TelaInicializacao();
 				frame.setVisible(true);
-				//Thread.sleep(3000);
 				frame.setVisible(false);
 				frame2 = new TelaCompilador();
 				frame2.setVisible(true);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}	

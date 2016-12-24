@@ -118,6 +118,7 @@ public class AcoesSemanticas extends PortugolBaseListener{
 	public void exitPrograma(ProgramaContext ctx) {
 		// TODO Auto-generated method stub
 		super.exitPrograma(ctx);
+		salvar.printf("\treturn\n");
 		salvar.printf(".end method");
 		try {
 			codigoDeMaquina.close();
@@ -302,22 +303,22 @@ public class AcoesSemanticas extends PortugolBaseListener{
 		for(int i = 0; i < ctx.listaIDs().ID().size(); i++){
 			if(!parser.tabelaDeSimbolos.containsKey(ctx.listaIDs().ID(i).getText())){
 				if(ctx.tipo().tip == 1) {
-					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "0", parser.tabelaDeSimbolos.size()));
+					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "0", parser.tabelaDeSimbolos.size()-1));
 					salvar.printf("\t\tildc " + 0 + "\n");
 					salvar.printf("\t\tistore " + parser.tabelaDeSimbolos.size() + "\n");
 				}
 				if(ctx.tipo().tip == 2) {
-					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "0.0", parser.tabelaDeSimbolos.size()));
+					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "0.0", parser.tabelaDeSimbolos.size()-1));
 					salvar.printf("\t\tfldc " + 0.0 + "\n");
 					salvar.printf("\t\tfstore " + parser.tabelaDeSimbolos.size() + "\n");
 				}
 				if(ctx.tipo().tip == 3) {
-					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "", parser.tabelaDeSimbolos.size()));
-					System.out.println("Variavel declarada com valor default string vazia");
+					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "", parser.tabelaDeSimbolos.size()-1));
 				}
 				if(ctx.tipo().tip == 4) {
-					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "FALSO", parser.tabelaDeSimbolos.size()));
-					System.out.println("Variavel declarada com valor default true");
+					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "FALSO", parser.tabelaDeSimbolos.size()-1));
+					salvar.printf("\t\tldc " + "\"FALSE\"" + "\n");
+					salvar.printf("\t\tstore " + parser.tabelaDeSimbolos.size() + "\n");
 				}
 			}
 			else{
@@ -499,16 +500,10 @@ public class AcoesSemanticas extends PortugolBaseListener{
 		super.enterDecFunc(ctx);
 		if(!parser.tabelaDeFuncoes.containsKey(ctx.ID().getText()) && !parser.tabelaDeSimbolos.containsKey(ctx.ID().getText())){
 			Funcao funcao = new Funcao();
-			
-			
 			parser.tabelaDeFuncoes.put(ctx.ID().getText(), funcao);
-		
 		}else{
 			mensagensDeErro.add("ERROR - Funcoes repetidas");
 		}
-		
-		
-		
 	}
 
 	@Override
