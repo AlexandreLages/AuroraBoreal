@@ -304,21 +304,23 @@ public class AcoesSemanticas extends PortugolBaseListener{
 			if(!parser.tabelaDeSimbolos.containsKey(ctx.listaIDs().ID(i).getText())){
 				if(ctx.tipo().tip == 1) {
 					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "0", parser.tabelaDeSimbolos.size()-1));
-					salvar.printf("\t\tildc " + 0 + "\n");
-					salvar.printf("\t\tistore " + parser.tabelaDeSimbolos.size() + "\n");
+					salvar.printf("\t\tldc " + 0 + "\n");
+					salvar.printf("\t\tistore " + (parser.tabelaDeSimbolos.size()-1) + "\n");
 				}
 				if(ctx.tipo().tip == 2) {
 					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "0.0", parser.tabelaDeSimbolos.size()-1));
-					salvar.printf("\t\tfldc " + 0.0 + "\n");
-					salvar.printf("\t\tfstore " + parser.tabelaDeSimbolos.size() + "\n");
+					salvar.printf("\t\tldc " + 0.0 + "\n");
+					salvar.printf("\t\tfstore " + (parser.tabelaDeSimbolos.size()-1) + "\n");
 				}
 				if(ctx.tipo().tip == 3) {
-					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "", parser.tabelaDeSimbolos.size()-1));
+					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "FALSO", parser.tabelaDeSimbolos.size()-1));
+					salvar.printf("\t\tldc " + "\"FALSO\"" + "\n");
+					salvar.printf("\t\tastore " + (parser.tabelaDeSimbolos.size()-1) + "\n");
 				}
 				if(ctx.tipo().tip == 4) {
-					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "FALSO", parser.tabelaDeSimbolos.size()-1));
-					salvar.printf("\t\tldc " + "\"FALSE\"" + "\n");
-					salvar.printf("\t\tstore " + parser.tabelaDeSimbolos.size() + "\n");
+					parser.tabelaDeSimbolos.put(ctx.listaIDs().ID(i).getText(), new Simbolo(Categoria.VARIAVEL, ctx.tipo().tip, "", parser.tabelaDeSimbolos.size()-1));
+					salvar.printf("\t\tldc " + "\"\"" + "\n");
+					salvar.printf("\t\tastore " + (parser.tabelaDeSimbolos.size()-1) + "\n");
 				}
 			}
 			else{
@@ -338,6 +340,7 @@ public class AcoesSemanticas extends PortugolBaseListener{
 	public void enterListaIDs(ListaIDsContext ctx) {
 		// TODO Auto-generated method stub
 		super.enterListaIDs(ctx);
+		salvar.printf("\t.limit locals " + ctx.ID().size() + "\n");
 	}
 
 	@Override
@@ -353,7 +356,6 @@ public class AcoesSemanticas extends PortugolBaseListener{
 		salvar.printf(".super java/lang/Object\n");
 		salvar.printf(".method public static main([Ljava/lang/String;)V\n");
 		salvar.printf("\t.limit stack 100\n");
-		salvar.printf("\t.limit locals 2\n");
 	}
 
 	@Override
@@ -414,6 +416,10 @@ public class AcoesSemanticas extends PortugolBaseListener{
 	public void enterImpressao(ImpressaoContext ctx) {
 		// TODO Auto-generated method stub
 		super.enterImpressao(ctx);
+		System.out.println(ctx.expr().getText());
+		salvar.printf("\t\tgetstatic java/lang/System/out Ljava/io/PrintStream;\n");
+		salvar.printf("\t\tldc " + ctx.expr().getText() + " \n");
+		salvar.printf("\t\tinvokevirtual java/io/PrintStream/println(Ljava/lang/String;)V\n");
 	}
 
 	@Override
