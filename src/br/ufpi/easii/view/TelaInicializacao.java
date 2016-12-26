@@ -5,6 +5,10 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.EmptyBorder;
 
 public class TelaInicializacao extends JFrame {
@@ -21,6 +25,19 @@ public class TelaInicializacao extends JFrame {
 	 * @throws InterruptedException 
 	 */
 	public TelaInicializacao() throws InterruptedException {
+		for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+	        if ("Nimbus".equals(info.getName())) {
+	            try {
+					UIManager.setLookAndFeel(info.getClassName());
+					SwingUtilities.updateComponentTreeUI(this);
+				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+						| UnsupportedLookAndFeelException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	            break;
+	        }
+	    }
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
