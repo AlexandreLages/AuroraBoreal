@@ -15,7 +15,9 @@ grammar Portugol;
 	public Map<String, Funcao> tabelaDeFuncoes = new HashMap<String, Funcao>();
 }
 
-programa: cabecalho ';' decVars* decFunc* comandos+ 'FIM' '.'
+programa: cabecalho ';' declaraVariavies decFunc* comandos+ 'FIM' '.'
+	;
+declaraVariavies: decVars*
 	;
 cabecalho: 'PROG' ID
 	;
@@ -27,7 +29,7 @@ tipo returns [int tip]: 'INTEIRO' {$tip=1;} | 'REAL' {$tip=2;} | 'BOOLEANO' {$ti
 	;
 listaIDs: ID (',' ID)*
 	;
-decFunc: 'FUNCAO' ID '(' decParams? ')' (':' tipo)? ';' decVars* comandos* 'FIM' ';' //tirei o return final
+decFunc: 'FUNCAO' ID '(' decParams? ')' (':' tipo)? ';' declaraVariavies comandos* 'FIM' ';' //tirei o return final
 	;
 comandos: atribuicao | leitura | impressao | seEntao | para | enquanto | repita | sair | retorno | chamadaFunc 
 	;

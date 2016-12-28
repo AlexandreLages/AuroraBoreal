@@ -1,8 +1,9 @@
 package tabelas;
 
 public class Simbolo {
-	private Categoria categoria;
-    private int tipo;
+	private Categoria categoria; //0-constante 1-variavel 2-parametros 3-programa 4-funcao
+    private int tipo; //1-inteiro 2-real 3-booleano 4-string
+    private int local; //0-local 1-global
     private String valor;
     private int endereco;
     
@@ -44,5 +45,13 @@ public class Simbolo {
 
 	public void setEndereco(int endereco) {
 		this.endereco = endereco;
+	}
+
+	public int getLocal() {
+		return local;
+	}
+
+	public void setLocal(int local) {
+		this.local = local;
 	}
 }

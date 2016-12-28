@@ -417,6 +417,18 @@ public class PortugolBaseListener implements PortugolListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDeclaraVariavies(@NotNull PortugolParser.DeclaraVariaviesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDeclaraVariavies(@NotNull PortugolParser.DeclaraVariaviesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterDecFunc(@NotNull PortugolParser.DecFuncContext ctx) { }
 	/**
 	 * {@inheritDoc}

@@ -17,6 +17,7 @@ import semantica.PortugolParser.ComandosContext;
 import semantica.PortugolParser.DecFuncContext;
 import semantica.PortugolParser.DecParamsContext;
 import semantica.PortugolParser.DecVarsContext;
+import semantica.PortugolParser.DeclaraVariaviesContext;
 import semantica.PortugolParser.EnquantoContext;
 import semantica.PortugolParser.ExprContext;
 import semantica.PortugolParser.FatorContext;
@@ -62,6 +63,23 @@ public class AcoesSemanticas extends PortugolBaseListener{
 		salvar = new PrintWriter(codigoDeMaquina);
 	}
 
+	@Override
+	public void enterDeclaraVariavies(DeclaraVariaviesContext ctx) {
+		// TODO Auto-generated method stub
+		super.enterDeclaraVariavies(ctx);
+		int numeroDeVariaveis = 0;
+		for(int i = 0; i < ctx.decVars().size(); i++){
+			numeroDeVariaveis = numeroDeVariaveis + ctx.decVars(i).listaIDs().ID().size();
+		}
+		salvar.printf("\t.limit locals " + numeroDeVariaveis + "\n");
+	}
+
+	@Override
+	public void exitDeclaraVariavies(DeclaraVariaviesContext ctx) {
+		// TODO Auto-generated method stub
+		super.exitDeclaraVariavies(ctx);
+	}
+	
 	@Override
 	public void enterDecParams(DecParamsContext ctx) {
 		// TODO Auto-generated method stub
@@ -340,7 +358,6 @@ public class AcoesSemanticas extends PortugolBaseListener{
 	public void enterListaIDs(ListaIDsContext ctx) {
 		// TODO Auto-generated method stub
 		super.enterListaIDs(ctx);
-		salvar.printf("\t.limit locals " + ctx.ID().size() + "\n");
 	}
 
 	@Override

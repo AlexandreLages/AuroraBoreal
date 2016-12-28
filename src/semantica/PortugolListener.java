@@ -343,6 +343,16 @@ public interface PortugolListener extends ParseTreeListener {
 	 */
 	void exitLeitura(@NotNull PortugolParser.LeituraContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link PortugolParser#declaraVariavies}.
+	 * @param ctx the parse tree
+	 */
+	void enterDeclaraVariavies(@NotNull PortugolParser.DeclaraVariaviesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PortugolParser#declaraVariavies}.
+	 * @param ctx the parse tree
+	 */
+	void exitDeclaraVariavies(@NotNull PortugolParser.DeclaraVariaviesContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link PortugolParser#decFunc}.
 	 * @param ctx the parse tree
 	 */
