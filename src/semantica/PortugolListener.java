@@ -620,8 +620,22 @@ public interface PortugolListener extends ParseTreeListener {
 	 */
 	void exitGe(@NotNull PortugolParser.GeContext ctx);
 	/**
+<<<<<<< HEAD
 	 * Enter a parse tree produced by the {@code NotUnary}
 	 * labeled alternative in {@link PortugolParser#unary}.
+=======
+	 * Enter a parse tree produced by {@link PortugolParser#declaraVariavies}.
+	 * @param ctx the parse tree
+	 */
+	void enterDeclaraVariavies(@NotNull PortugolParser.DeclaraVariaviesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link PortugolParser#declaraVariavies}.
+	 * @param ctx the parse tree
+	 */
+	void exitDeclaraVariavies(@NotNull PortugolParser.DeclaraVariaviesContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link PortugolParser#decFunc}.
+>>>>>>> origin/master
 	 * @param ctx the parse tree
 	 */
 	void enterNotUnary(@NotNull PortugolParser.NotUnaryContext ctx);
