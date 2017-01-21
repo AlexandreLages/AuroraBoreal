@@ -1,4 +1,4 @@
-package br.ufpi.easii.controller;
+package semantica;
 
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -10,25 +10,10 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-import semantica.ErroSintaxeException;
-import semantica.ErroSintaxeListener;
-import semantica.PortugolLexer;
-import semantica.PortugolParser;
-import semantica.Semantica;
+public class Exec {
 
-
-
-public class Compilador {
-	
-	/**
-	 * Metodo que recebe um path de um arquivo e realiza sua compilacao
-	 * @param path
-	 * @return
-	 * @throws IOException 
-	 */
-	public static String compilar(String path) throws IOException{
-		
-		InputStream input = new FileInputStream(path);
+	public static void main(String[] args) throws IOException {
+		InputStream input = new FileInputStream("C:\\Users\\Irvayne Matheus\\Documents\\main.txt");
         ANTLRInputStream stream = new ANTLRInputStream(input);
 		
         PortugolLexer lexer = new PortugolLexer(stream);
@@ -41,23 +26,21 @@ public class Compilador {
         
         ParseTree tree = parser.program();
         
-        FileWriter codigo = new FileWriter(path+".j");
+        FileWriter codigo = new FileWriter("C:\\Users\\Irvayne Matheus\\Documents\\main.j");
         
         ParseTreeWalker walker = new ParseTreeWalker();
         Semantica semantica = new Semantica(codigo);
         walker.walk(semantica, tree);
-        String console = "";
         
         if(!syntaxError.getErroSintaxe().isEmpty()) {
             for(ErroSintaxeException erro: syntaxError.getErroSintaxe()) {
-            	console = console + erro.toString() + "\n";
+            	System.out.println(erro.toString());
             }                
         }
         
         System.out.println("\nErros encontrados\n");
         for(String erro : semantica.getErros()){
-        	console = console + erro + "\n";
-        } 
-        return console;
+        	System.out.println(erro);
+        }        
 	}
 }

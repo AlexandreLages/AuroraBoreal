@@ -1,6 +1,7 @@
 package br.ufpi.easii.view;
 import java.awt.Color;
 import java.awt.SystemColor;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -18,7 +19,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.border.EmptyBorder;
@@ -27,6 +28,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
@@ -45,10 +52,78 @@ public class TelaCompilador extends JFrame {
 	private int indiceSelecionado;
 	private ArrayList<Arquivo> arquivos;
 
+	
+	private int findLastNonWordChar (String text, int index) {
+        while (--index >= 0) {
+            if (String.valueOf(text.charAt(index)).matches("\\W")) {
+                break;
+            }
+        }
+        return index;
+    }
+
+    private int findFirstNonWordChar (String text, int index) {
+        while (index < text.length()) {
+            if (String.valueOf(text.charAt(index)).matches("\\W")) {
+                break;
+            }
+            index++;
+        }
+        return index;
+    }
+    
+    @SuppressWarnings("serial")
+	private StyledDocument gerarDoc() {
+    	StyleContext cont = StyleContext.getDefaultStyleContext();
+        AttributeSet attr = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.BLUE);
+        AttributeSet attrBlack = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.BLACK);
+
+		return new DefaultStyledDocument() {
+            public void insertString (int offset, String str, AttributeSet a) throws BadLocationException {
+                super.insertString(offset, str, a);
+
+                String text = getText(0, getLength());
+                int before = findLastNonWordChar(text, offset);
+                if (before < 0) before = 0;
+                int after = findFirstNonWordChar(text, offset + str.length());
+                int wordL = before;
+                int wordR = before;
+
+                while (wordR <= after) {
+                    if (wordR == after || String.valueOf(text.charAt(wordR)).matches("\\W")) {
+                        if (text.substring(wordL, wordR).matches("(\\W)*(INTEIRO|STRING|BOOLEANO|REAL|FUNCAO|FIM|IMPRIMA|LEIA|SE|ENTAO|SENAO|PARA|ATE|FACA|ENQUANTO|REPITA|PASSO|SAIR|PROG|RETORNE)"))
+                            setCharacterAttributes(wordL, wordR - wordL, attr, false);
+                        else
+                            setCharacterAttributes(wordL, wordR - wordL, attrBlack, false);
+                        wordL = wordR;
+                    }
+                    wordR++;
+                }
+            }
+
+            public void remove (int offs, int len) throws BadLocationException {
+                super.remove(offs, len);
+
+                String text = getText(0, getLength());
+                int before = findLastNonWordChar(text, offs);
+                if (before < 0) before = 0;
+                int after = findFirstNonWordChar(text, offs);
+
+                if (text.substring(before, after).matches("(\\W)*(INTEIRO|STRING|BOOLEANO|REAL|FUNCAO|FIM|IMPRIMA|LEIA|SE|ENTAO|SENAO|PARA|ATE|FACA|ENQUANTO|REPITA|PASSO|SAIR|PROG|RETORNE)")) {
+                    setCharacterAttributes(before, after - before, attr, false);
+                } else {
+                    setCharacterAttributes(before, after - before, attrBlack, false);
+                }
+            }
+        };
+	}
+	
 	/**
 	 * Create the frame.
 	 */
 	public TelaCompilador() {
+		
+		setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\Irvayne Matheus\\Desktop\\workspace\\AuroraBoreal\\src\\img\\icon.png"));
 		
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		indiceSelecionado = 0;
@@ -106,7 +181,7 @@ public class TelaCompilador extends JFrame {
 		panelPrograma.setLayout(null);
 		
 
-		JTextArea textFonte = new JTextArea();
+		JTextPane textFonte = new JTextPane(gerarDoc());
 		textFonte.setText("PROG Main;\r\n    INTEIRO N, I;\r\n     REPITA\r\n        IMPRIMA(\u201CDigite o Valor:\u201C);\r\n      LEIA(n);\r\n    ATE (n >0);\r\n   PARA i = 1 ATE N PASSO 2 FACA\r\n  IMPRIMA(i);\r\n FIM;\r\nFIM.");
 		
 		
@@ -118,14 +193,17 @@ public class TelaCompilador extends JFrame {
 		panelConsole.setBounds(6, 441, 1098, 188);
 		panelPrograma.add(panelConsole);
 		
-		JTextArea textConsole = new JTextArea();
-		
+		JTextPane textConsole = new JTextPane();
+		textConsole.setEditable(false);
 		panelConsole.add(textConsole);
 		panelPrograma.add(textFonte);
 		
 		JScrollPane scrollPaneFonte = new JScrollPane(textFonte);
 		scrollPaneFonte.setBounds(10, 11, 1089, 419);
 		panelPrograma.add(scrollPaneFonte);
+		
+		TextLineNumber contadorLinhas = new TextLineNumber(textFonte,2);
+		scrollPaneFonte.setRowHeaderView(contadorLinhas);
 		
 		
 		JScrollPane scrollPaneConsole = new JScrollPane(textConsole);
@@ -142,7 +220,7 @@ public class TelaCompilador extends JFrame {
 				JPanel pane = (JPanel) tabbedPane.getComponent(indiceSelecionado);
 				JScrollPane scrollPane =  (JScrollPane) pane.getComponent(1);
 				JViewport viewport = (JViewport) scrollPane.getComponent(0);
-				JTextArea areaPrograma = (JTextArea) viewport.getComponent(0);
+				JTextPane areaPrograma = (JTextPane) viewport.getComponent(0);
 				
 				arquivos.get(indiceSelecionado).setFonte(areaPrograma.getText());
 				
@@ -168,7 +246,7 @@ public class TelaCompilador extends JFrame {
 							JPanel pane2 = (JPanel) pane.getComponent(0);
 							JScrollPane scrollPane2 =  (JScrollPane) pane2.getComponent(0);
 							JViewport viewport2 = (JViewport) scrollPane2.getComponent(0);
-							JTextArea areaCompilacao = (JTextArea) viewport2.getComponent(0);
+							JTextPane areaCompilacao = (JTextPane) viewport2.getComponent(0);
 							areaCompilacao.setText(resposta);
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
@@ -196,7 +274,7 @@ public class TelaCompilador extends JFrame {
 						 JPanel pane2 = (JPanel) pane.getComponent(0);
 							JScrollPane scrollPane2 =  (JScrollPane) pane2.getComponent(0);
 							JViewport viewport2 = (JViewport) scrollPane2.getComponent(0);
-							JTextArea areaCompilacao = (JTextArea) viewport2.getComponent(0);
+							JTextPane areaCompilacao = (JTextPane) viewport2.getComponent(0);
 							areaCompilacao.setText(resposta);
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
@@ -223,7 +301,7 @@ public class TelaCompilador extends JFrame {
 					JPanel pane = (JPanel) tabbedPane.getComponent(indiceSelecionado);
 					JScrollPane scrollPane =  (JScrollPane) pane.getComponent(1);
 					JViewport viewport = (JViewport) scrollPane.getComponent(0);
-					JTextArea areaPrograma = (JTextArea) viewport.getComponent(0);
+					JTextPane areaPrograma = (JTextPane) viewport.getComponent(0);
 					
 					arquivos.get(indiceSelecionado).setFonte(areaPrograma.getText());
 					arquivos.get(indiceSelecionado).setPath(chooser.getSelectedFile().getAbsolutePath()+".txt");
@@ -246,7 +324,7 @@ public class TelaCompilador extends JFrame {
 					JPanel pane = (JPanel) tabbedPane.getComponent(indiceSelecionado);
 					JScrollPane scrollPane =  (JScrollPane) pane.getComponent(1);
 					JViewport viewport = (JViewport) scrollPane.getComponent(0);
-					JTextArea areaPrograma = (JTextArea) viewport.getComponent(0);
+					JTextPane areaPrograma = (JTextPane) viewport.getComponent(0);
 					
 					arquivos.get(indiceSelecionado).setFonte(areaPrograma.getText());
 					
@@ -307,7 +385,7 @@ public class TelaCompilador extends JFrame {
 				panelPrograma.setLayout(null);
 				
 
-				JTextArea textFonte = new JTextArea();
+				JTextPane textFonte = new JTextPane(gerarDoc());
 				
 				panelPrograma.add(textFonte);
 				
@@ -318,7 +396,7 @@ public class TelaCompilador extends JFrame {
 				panelConsole.setBounds(6, 441, 1098, 188);
 				panelPrograma.add(panelConsole);
 				
-				JTextArea textConsole = new JTextArea();
+				JTextPane textConsole = new JTextPane();
 				
 				panelConsole.add(textConsole);
 				
@@ -326,6 +404,8 @@ public class TelaCompilador extends JFrame {
 				scrollPaneFonte.setBounds(10, 11, 1089, 419);
 				panelPrograma.add(scrollPaneFonte);
 				
+				TextLineNumber contadorLinhas = new TextLineNumber(textFonte,2);
+				scrollPaneFonte.setRowHeaderView(contadorLinhas);
 				
 				JScrollPane scrollPaneConsole = new JScrollPane(textConsole);
 				scrollPaneConsole.setBounds(10, 21, 1077, 164);
@@ -341,6 +421,7 @@ public class TelaCompilador extends JFrame {
 		JButton btnCarregarArquivo = new JButton("Carregar Arquivo");
 		btnCarregarArquivo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(qntArquivos < 10){
 				JFileChooser chooser = new JFileChooser();
 				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 					//File file = new File(chooser.getSelectedFile().getAbsolutePath());
@@ -362,20 +443,21 @@ public class TelaCompilador extends JFrame {
 					      	String nome = chooser.getSelectedFile().getAbsolutePath();
 					      	//apos carregar um arquivo cria o objeto e adiciona na lista
 					      	Arquivo arqui = new Arquivo();
-					      	arqui.setNome(nome);
+					      	String nomeArquivo =  nome;
+					      	arqui.setNome(nomeArquivo);
 					      	arqui.setFonte(texto);
 					      	arqui.setPath(nome);
 							arquivos.add(arqui);
-					      	MutableTreeNode rootNodeAux = new DefaultMutableTreeNode(nome);
+					      	MutableTreeNode rootNodeAux = new DefaultMutableTreeNode(nomeArquivo);
 							treeModel.insertNodeInto(rootNodeAux, rootNode, qntArquivos);
 							
 							JPanel panelPrograma = new JPanel();
-							tabbedPane.addTab(nome, null, panelPrograma, null);
+							tabbedPane.addTab(nomeArquivo, null, panelPrograma, null);
 							panelPrograma.setBackground(SystemColor.menu);
 							panelPrograma.setLayout(null);
 							
 
-							JTextArea textFonte = new JTextArea();
+							JTextPane textFonte = new JTextPane(gerarDoc());
 							textFonte.setText(texto);
 							
 							panelPrograma.add(textFonte);
@@ -387,13 +469,16 @@ public class TelaCompilador extends JFrame {
 							panelConsole.setBounds(6, 441, 1098, 188);
 							panelPrograma.add(panelConsole);
 							
-							JTextArea textConsole = new JTextArea();
+							JTextPane textConsole = new JTextPane();
 							
 							panelConsole.add(textConsole);
 							
 							JScrollPane scrollPaneFonte = new JScrollPane(textFonte);
 							scrollPaneFonte.setBounds(10, 11, 1089, 419);
 							panelPrograma.add(scrollPaneFonte);
+							
+							TextLineNumber contadorLinhas = new TextLineNumber(textFonte,2);
+							scrollPaneFonte.setRowHeaderView(contadorLinhas);
 							
 							
 							JScrollPane scrollPaneConsole = new JScrollPane(textConsole);
@@ -412,8 +497,9 @@ public class TelaCompilador extends JFrame {
 						e1.printStackTrace();
 					}
 				}
+				}
 			}
-			
+
 		});
 		btnCarregarArquivo.setBounds(131, 10, 143, 23);
 		contentPane.add(btnCarregarArquivo);

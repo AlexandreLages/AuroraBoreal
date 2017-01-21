@@ -1,5 +1,10 @@
 package br.ufpi.easii;
+import java.awt.Color;
 import java.awt.EventQueue;
+
+import javax.swing.text.AttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 
 import br.ufpi.easii.view.TelaCompilador;
 import br.ufpi.easii.view.TelaInicializacao;
@@ -25,9 +30,11 @@ public class Main {
 			try {
 				frame = new TelaInicializacao();
 				frame.setVisible(true);
+				//Thread.sleep(5000);
 				frame.setVisible(false);
 				frame2 = new TelaCompilador();
 				frame2.setVisible(true);
+
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

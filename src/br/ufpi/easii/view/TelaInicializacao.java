@@ -10,6 +10,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.EmptyBorder;
+import java.awt.Toolkit;
 
 public class TelaInicializacao extends JFrame {
 
@@ -25,6 +26,7 @@ public class TelaInicializacao extends JFrame {
 	 * @throws InterruptedException 
 	 */
 	public TelaInicializacao() throws InterruptedException {
+		setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\Irvayne Matheus\\Desktop\\workspace\\AuroraBoreal\\src\\img\\icon.png"));
 		for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 	        if ("Nimbus".equals(info.getName())) {
 	            try {
